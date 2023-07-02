@@ -68,7 +68,7 @@ operateurs = [
   {
     'name': 'Bouygues Telecom',
     'code': 'bytel',
-    'url' : 'https://antennesindisponibles.bouyguestelecom.fr/antennesindisponibles.xls',
+    'url' : 'http://antennesindisponibles.bouyguestelecom.fr/antennesindisponibles.xls',
     'type': 'xls',
     'excelsheet' : 0,
     'excelheader': 0,
