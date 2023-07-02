@@ -186,7 +186,7 @@ def df_to_geojson(df, properties, lat='lat', lon='lon'):
     }
 
 # Propriétés GeoJSON à intégrer
-geojson_properties = ['operateur', 'departement', 'code_insee', 'commune'] + equipment_columns + detail_duree_columns
+geojson_properties = ['operateur', 'op_code', 'departement', 'code_insee', 'commune'] + equipment_columns + detail_duree_columns
 
 # Export en GeoJSON
 with open(save.all_path('.geojson'), 'w') as file:
