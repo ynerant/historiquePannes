@@ -21,36 +21,40 @@ def create_if_not_exists(folder):
 # L'achitecture de fichiers est la suivante:
 # savepath
 #   free
-#     01-01-2021
-#       01-01-2021_free.csv
-#       01-01-2021_free.json
-#       01-01-2021_free_raw.csv  (fichier téléchargé)
+#     01-01-2021T00:00:00
+#       01-01-2021T00:00_free.csv
+#       01-01-2021T00:00_free.json
+#       01-01-2021T00:00_free_raw.csv  (fichier téléchargé)
 #     ...                        (idem pour chaque date)
 #   ...                          (idem pour chaque operateur)
 #   all
-#     01-01-2021                 
-#       01-01-2021.csv           (fichier tout opérateurs concaténés)
-#       01-01-2021.json          (fichier tout opérateurs concaténés)
+#     01-01-2021T00:00
+#       01-01-2021T00:00.csv           (fichier tout opérateurs concaténés)
+#       01-01-2021T00:00.json          (fichier tout opérateurs concaténés)
 #     ...
-# Les dossiers sont créés à l'initialisation s'ils sont inexistants               
+# Les dossiers sont créés à l'initialisation s'ils sont inexistants
 class PathHandler:
     def __init__(self, root, date):
         self.root = root
         self.default_date = date
-        create_if_not_exists(self.root+sep+'all')
-        create_if_not_exists(self.root+sep+'all'+sep+date)
+        create_if_not_exists(self.root + sep + 'all')
+        create_if_not_exists(self.root + sep + 'all' + sep + date)
         # Création d'un répertoire par opérateur
         for op in operateurs:
-            create_if_not_exists(self.root+sep+op['code'])
-            create_if_not_exists(self.op_folder(op,date))
+            create_if_not_exists(self.root + sep + op['code'])
+            create_if_not_exists(self.op_folder(op, date))
 
     def date(self, date):
         return date if date else self.default_date
+
     def op_folder(self, op, date=None):
-        return self.root+sep+op['code']+sep+self.date(date)
+        return self.root + sep + op['code']+sep + self.date(date)
+
     def op_path(self, op, suffix, date=None):
-        return self.op_folder(op,date)+sep+self.date(date)+'_'+op['code']+suffix
+        return self.op_folder(op,date) + sep + self.date(date) + '_' + op['code'] + suffix
+
     def all_path(self, suffix, date=None):
-        return self.root+sep+'all'+sep+self.date(date)+sep+self.date(date)[0:10]+suffix
+        return self.root + sep + 'all' + sep + self.date(date) + sep + self.date(date) + suffix
+
     def raw_path(self, op, date=None):
-        return self.op_path(op,'_raw.'+op['type'],date)
+        return self.op_path(op, '_raw.' + op['type'], date)

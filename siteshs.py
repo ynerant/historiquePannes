@@ -18,21 +18,21 @@ import geopandas as gpd
 from operators import *
 from paths import PathHandler
 
-# Si on fournit un 5ème argument (date), utiliser les fichiers préalablement sauvegardés
-# Sinon télécharger les fichiers à la date d'aujourd'hui
+# Si on fournit un 5ème argument (datetime), utiliser les fichiers préalablement sauvegardés
+# Sinon télécharger les fichiers à la date actuelle
 from_download = len(sys.argv) < 3
 
 # La date sur laquelle tourner
-datename = str(date.today()) if from_download else sys.argv[2]
+datetimename = datetime.utcnow().isoformat()[:-10] if from_download else sys.argv[2]
 
 print("")
-print("################################################")
-print("    Lancement du script à la date du ", datename)
-print("################################################")
+print("##########################################################")
+print("    Lancement du script à la date du ", datetimename)
+print("##########################################################")
 print("")
 
 # Chemin vers le dossier de sauvegarde
-save = PathHandler(sys.argv[1], datename)
+save = PathHandler(sys.argv[1], datetimename)
 
 
 def try_download(op):
@@ -47,7 +47,7 @@ def try_download(op):
         else:
             print("Fichier téléchargé.")
             # sauvegarde sur le disque
-            export_file = save.raw_path(op,datename)
+            export_file = save.raw_path(op, datetimename)
             with open(export_file, 'wb') as file:
                 file.write(r.content)
             print("Sauvegardé à " + export_file)
@@ -75,13 +75,13 @@ if from_download:
 def get_raw_dataframe(op):
     """ Fonction de récupération d'un dataframe brut à partir des fichiers récupérés """
     if op["type"] == "xls":
-        return pd.read_excel(save.raw_path(op,datename),
+        return pd.read_excel(save.raw_path(op, datetimename),
                              sheet_name = op['excelsheet'],
                              header     = op['excelheader'],
                              skipfooter = op['skipfooter'],
                              index_col  = None)
     else:
-        return pd.read_csv(save.raw_path(op,datename),
+        return pd.read_csv(save.raw_path(op, datetimename),
                            sep        = op['separator'],
                            skiprows   = op['skipheader'],
                            skipfooter = op['skipfooter'],
@@ -132,28 +132,24 @@ def make_op_uniform(op):
 
     # Formatage du code postal et code INSEE
     if 'code_insee' in df:
-        print(df['code_insee'])
         df['code_insee'] = [ re.findall('([0-9]?[0-9AB][0-9][0-9][0-9]).*', d)[0] for d in df['code_insee'].astype(str) ]
         nf['code_insee'] = df['code_insee'].astype(str).str.zfill(5)
         nf['departement'] = nf['code_insee'].str[0:2]
-    if 'code_postal' in df:
-        nf['code_postal'] = df['code_postal'].astype(int)
-        nf['departement'] = nf['code_postal'].astype(str).str.zfill(5).str[0:2]
 
     for col in equipment_columns + ['lat', 'lon', 'commune', 'region']:
         nf[col] = df.get(col)
 
     # Fill with constant columns
-    nf['date']      = datename
+    nf['datetime']  = datetimename + '+00:00'
     nf['op_code']   = op['code']
     nf['operateur'] = op['name']
 
     # Tri des données
-    nf = nf.sort_values(by=['departement', 'code_insee', 'code_postal'])
+    nf = nf.sort_values(by=['departement', 'code_insee'])
     # Sauvegarde dans le dict de l'opérateur
     op['dataframe'] = nf
     # Ecriture du fichier au format standardisé csv (Un format unique pour les gouverner tous !)
-    nf.to_csv(save.op_path(op,'.csv'), sep=',', index=False)
+    nf.to_csv(save.op_path(op, '.csv'), sep=',', index=False)
     # Export en JSON (bon ok, deux...)
     nf.to_json(save.op_path(op,'.json'), orient='records')
 
@@ -190,7 +186,7 @@ def df_to_geojson(df, properties, lat='lat', lon='lon'):
     }
 
 # Propriétés GeoJSON à intégrer
-geojson_properties = ['operateur', 'departement','code_postal','code_insee','commune'] + equipment_columns + detail_duree_columns
+geojson_properties = ['operateur', 'departement', 'code_insee', 'commune'] + equipment_columns + detail_duree_columns
 
 # Export en GeoJSON
 with open(save.all_path('.geojson'), 'w') as file:

@@ -93,5 +93,5 @@ operateurs = [
 status_columns       = ['2Gvoix', '3Gvoix', '3Gdata', '4Gdata', '5Gdata', 'voix', 'data']
 equipment_columns    = status_columns + ['code_site_op', 'propre', 'raison', 'detail']
 detail_duree_columns = ['debut_voix', 'fin_voix', 'debut_data', 'fin_data', 'debut', 'fin']
-indispo_columns      = ['region', 'departement', 'code_postal', 'code_insee', 'commune', 'lat', 'lon']
-all_columns          = ['date', 'operateur', 'op_code'] + indispo_columns + equipment_columns + detail_duree_columns
+indispo_columns      = ['region', 'departement', 'code_insee', 'commune', 'lat', 'lon']
+all_columns          = ['datetime', 'operateur', 'op_code'] + indispo_columns + equipment_columns + detail_duree_columns
